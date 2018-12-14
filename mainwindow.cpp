@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <iostream>
+#include "fisher.h"
 
 #include <QImage>
 #include <QDebug>
@@ -69,74 +70,21 @@ void MainWindow::on_FSpushButtonOpenFile_clicked()
     updateDatabaseInfo();
 }
 
-std::vector<std::vector<int>> CreateCombinations(int range, int size) {
-       std::vector<std::vector<int>> combinations;
-       std::vector<bool> v(range);
-       std::fill(v.begin(), v.begin() + size, true);
-       do {
-           std::vector<int> singleCombination;
-           for (int i = 0; i < range; ++i) {
-               if (v[i]) {
-                   singleCombination.push_back(i+1);
-               }
-           }
-           combinations.push_back(singleCombination);
-       } while (std::prev_permutation(v.begin(), v.end()));
-       return combinations;
-}
-
 void MainWindow::on_FSpushButtonCompute_clicked()
 {
     int dimension = ui->FScomboBox->currentText().toInt();
     if( ui->FSradioButtonFisher ->isChecked())
     {
-    if (dimension == 1 && database.getNoClass() == 2)
+        if (dimension == 1 && database.getNoClass() == 2)
         {
-            float FLD = 0, tmp;
-            int max_ind = -1;
-
-            //std::map<std::string, int> classNames = database.getClassNames();
-            for (uint i = 0; i < database.getNoFeatures(); ++i)
-            {
-                std::map<std::string, float> classAverages;
-                std::map<std::string, float> classStds;
-
-                for (auto const &ob : database.getObjects())
-                {
-                    classAverages[ob.getClassName()] += ob.getFeatures()[i];
-                    classStds[ob.getClassName()] += ob.getFeatures()[i] * ob.getFeatures()[i];
-                }
-
-                std::for_each(database.getClassCounters().begin(), database.getClassCounters().end(), [&](const std::pair<std::string, int> &it)
-                {
-                    classAverages[it.first] /= it.second;
-                    classStds[it.first] = std::sqrt(classStds[it.first] / it.second - classAverages[it.first] * classAverages[it.first]);
-                }
-                );
-
-                tmp = std::abs(classAverages[ database.getClassNames()[0] ] - classAverages[database.getClassNames()[1]]) / (classStds[database.getClassNames()[0]] + classStds[database.getClassNames()[1]]);
-
-                if (tmp > FLD)
-                {
-                    FLD = tmp;
-                    max_ind = i;
-                }
-
-              }
-
-            ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::number(max_ind) + " " + QString::number(FLD));
-          }
-    if (dimension > 1 && database.getNoClass() == 2)
-    {
-        std::vector<std::vector<int>> combinations = CreateCombinations(database.getNoFeatures(),dimension);
-        for (std::vector<int> &combination : combinations) {
-            for (int &value : combination) {
-                std::cout << (value) << " ";
-            }
-            std::cout << "\n";
+            fisherPair* FP = computeFisher(database);
+            ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::number(FP->max_ind) + " " + QString::number(FP->FLD));
+        }
+        else if (dimension > 1 && database.getNoClass() == 2)
+        {
+            computeFisher(dimension,database);
         }
     }
-     }
 }
 
 
