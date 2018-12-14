@@ -7,12 +7,12 @@ using namespace std;
 
 typedef unsigned int uint;
 typedef struct {
-    float FLD;
-    uint max_ind;
+    double FLD;
+    vector<uint> max_ind;
 } fisherPair;
 
 vector<vector<int>> CreateCombinations(uint range, int size);
 fisherPair* computeFisher(Database db);
-void computeFisher(uint dimension, Database db);
+fisherPair* computeFisher(uint dimension, Database db);
 
 #endif // FISHER_H

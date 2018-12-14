@@ -25,7 +25,6 @@ typedef struct {
 
 double det(bnu::matrix<double> m)
 {
-  assert(m.size1() == m.size2() && "Can only calculate the determinant of square matrices");
   bnu::permutation_matrix<std::size_t> pivots(m.size1() );
   const int is_singular = bnu::lu_factorize(m, pivots);
   if (is_singular) return 0.0;
@@ -92,23 +91,23 @@ vector<ASdata*> calcAS(Database db) {
 }
 
 fisherPair* computeFisher(Database db) {
-    fisherPair* FP = new fisherPair;
+    fisherPair* FP = new fisherPair();
     vector<ASdata*> asd = calcAS(db);
-    float tmp;
+    double tmp;
     for (unsigned int i = 0; i < db.getNoFeatures(); ++i)
     {
         tmp = abs(asd.at(i)->classAverages[ db.getClassNames()[0] ] - asd.at(i)->classAverages[db.getClassNames()[1]]) / (asd.at(i)->classStds[db.getClassNames()[0]] + asd.at(i)->classStds[db.getClassNames()[1]]);
         if (tmp > FP->FLD)
         {
             FP->FLD = tmp;
-            FP->max_ind = i;
+            FP->max_ind.push_back(i);
         }
       }
     return FP;
 }
 
-void computeFisher(uint dimension, Database db) {
-    vector<fisherPair> fpMulti;
+fisherPair* computeFisher(uint dimension, Database db) {
+    fisherPair* FP = new fisherPair();
     vector<vector<uint>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
     vector<ASdata*> asd = calcAS(db);
     classObjects* classAObjects = getObjectsOfClass(0, db);
@@ -116,7 +115,7 @@ void computeFisher(uint dimension, Database db) {
     for (vector<uint> &combo : combinations) {
         bnu::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
         bnu::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
-        for (uint i = 0; i < dimension; i++) { // POPULATING MA, MB, SA_X, SB_X
+        for (uint i = 0; i < dimension; i++) {
             for (uint j = 0; j < classAObjects->amount; j++) {
                 MA(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[0]]);
                 SA_X(i,j) = static_cast<double>(classAObjects->objects.at(j).getFeatures()[combo[i]-1]);
@@ -130,42 +129,20 @@ void computeFisher(uint dimension, Database db) {
         bnu::matrix<double> SB_final(dimension, dimension);
         SA_final = prod(MA - SA_X, trans(MA - SA_X))/classAObjects->amount;
         SB_final = prod(MB - SB_X, trans(MB - SB_X))/classBObjects->amount;
-        for (uint i = 0; i < dimension; i++) {
-            for (uint j = 0; j < dimension; j++) {
-                cout << SA_final(i,j) << " ";
-            }
-            cout << endl;
-        }
-       cout << "|------------|" <<endl;
-        for (uint i = 0; i < dimension; i++) {
-            for (uint j = 0; j < dimension; j++) {
-                cout << SB_final(i,j) << " ";
-            }
-            cout << endl;
-        }
-       cout << "|------------|" <<endl;
         double top;
-        cout << "------------" <<endl;
         for (uint i = 0; i < dimension; i++) {
             double tmp = MA(i,1) - MB(i,1);
             top += tmp * tmp;
         }
         bnu::matrix<double> final(dimension, dimension);
         final = SA_final + SB_final;
-        for(uint i = 0; i < dimension; i++) {
-            for(uint j = 0; j < dimension; j++) {
-                cout << final(i,j) << " | ";
-            }
-            cout << endl;
-        }
         double bottom = det(SA_final + SB_final);
         top = sqrt(top);
         double fisher = top/bottom;
-
-        cout << "Top:" << top << endl;
-        cout << "Bottom:" << bottom << endl;
-        cout << "Fisher" << fisher;
-        cout << "------------" <<endl;
-        break;
+        if (fisher > FP->FLD) {
+            FP->FLD = fisher;
+            FP->max_ind = combo;
+        }
     }
+    return FP;
 }
