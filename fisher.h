@@ -11,8 +11,8 @@ typedef struct {
     vector<uint> max_ind;
 } fisherPair;
 
-vector<vector<int>> CreateCombinations(uint range, int size);
-fisherPair* computeFisher(Database db);
-fisherPair* computeFisher(uint dimension, Database db);
+fisherPair* singleFisher(Database db);
+fisherPair* bruteForce(uint dimension, Database db);
+fisherPair* SFS(uint dimension, Database db);
 
 #endif // FISHER_H

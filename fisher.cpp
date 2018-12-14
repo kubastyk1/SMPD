@@ -90,28 +90,38 @@ vector<ASdata*> calcAS(Database db) {
     return asd;
 }
 
-fisherPair* computeFisher(Database db) {
+fisherPair* singleFisher(Database db) {
     fisherPair* FP = new fisherPair();
     vector<ASdata*> asd = calcAS(db);
     double tmp;
+    uint indTmp;
     for (unsigned int i = 0; i < db.getNoFeatures(); ++i)
     {
         tmp = abs(asd.at(i)->classAverages[ db.getClassNames()[0] ] - asd.at(i)->classAverages[db.getClassNames()[1]]) / (asd.at(i)->classStds[db.getClassNames()[0]] + asd.at(i)->classStds[db.getClassNames()[1]]);
         if (tmp > FP->FLD)
         {
             FP->FLD = tmp;
-            FP->max_ind.push_back(i);
+            indTmp = i;
         }
       }
+    FP->max_ind.push_back(indTmp);
     return FP;
 }
 
-fisherPair* computeFisher(uint dimension, Database db) {
+fisherPair* computeFisher(uint dimension, Database db, vector<vector<uint>> combinations) {
     fisherPair* FP = new fisherPair();
-    vector<vector<uint>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
     vector<ASdata*> asd = calcAS(db);
     classObjects* classAObjects = getObjectsOfClass(0, db);
     classObjects* classBObjects = getObjectsOfClass(1, db);
+//    for (vector<uint> &combo : combinations) {
+//        cout << "-----------" << endl;
+//        cout << "---BEGIN---" << endl;
+//        for (uint &digit : combo) {
+//            cout << digit << " ";
+//        }
+//        cout << "----END----" << endl ;
+//        cout << "-----------" << endl;
+//    }
     for (vector<uint> &combo : combinations) {
         bnu::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
         bnu::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
@@ -140,9 +150,36 @@ fisherPair* computeFisher(uint dimension, Database db) {
         top = sqrt(top);
         double fisher = top/bottom;
         if (fisher > FP->FLD) {
+            //cout << fisher << endl;
             FP->FLD = fisher;
             FP->max_ind = combo;
         }
+    }
+    return FP;
+}
+
+fisherPair* bruteForce(uint dimension, Database db) {
+    return computeFisher(dimension, db, CreateCombinations(db.getNoFeatures(),dimension));
+}
+
+fisherPair* SFS(uint dimension, Database db) {
+    fisherPair* FP = singleFisher(db);
+    cout << " FISZER SINGEL SFS";
+    for ( int i : FP->max_ind) {
+        cout << i << " ";
+    }
+    cout << endl;
+    for (uint i = 1; i < dimension; i++) {
+        vector<vector<uint>> combo;
+        for (uint j = 1; j < db.getNoFeatures(); j++) {
+            vector<uint> tmp = FP->max_ind;
+            if(!(std::find(tmp.begin(), tmp.end(), j) != tmp.end())) {
+                tmp.push_back(j);
+                combo.push_back(tmp);
+            }
+        }
+        combo.push_back(FP->max_ind);
+        FP = computeFisher(i, db, combo);
     }
     return FP;
 }

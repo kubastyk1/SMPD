@@ -77,20 +77,30 @@ void MainWindow::on_FSpushButtonCompute_clicked()
     {
         if (dimension == 1 && database.getNoClass() == 2)
         {
-            fisherPair* FP = computeFisher(database);
-            ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::number(FP->max_ind[0]) + " " + QString::number(static_cast<double>(FP->FLD)));
+            fisherPair* FP = singleFisher(database);
+            ui->FStextBrowserDatabaseInfo->append("[S]max_ind: "  +  QString::number(FP->max_ind[0]) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
         }
         else if (dimension > 1 && database.getNoClass() == 2)
         {
-           fisherPair* FP = computeFisher(dimension,database);
+           fisherPair* FP = bruteForce(dimension,database);
            string inds = "(";
            for (uint ind : FP->max_ind) {
                inds += to_string(ind) + " ";
            }
            inds = inds.substr(0, inds.size()-1) + ")";
            cout<<inds;
-           ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::fromStdString(inds) + " " + QString::number(static_cast<double>(FP->FLD)));
+           ui->FStextBrowserDatabaseInfo->append("[BrF]max_ind: "  +  QString::fromStdString(inds) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
         }
+    }
+    else if( ui -> FSradioButtonSFS -> isChecked()){
+        fisherPair* FP = SFS(dimension,database);
+//        string inds = "(";
+//        for (uint ind : FP->max_ind) {
+//            inds += to_string(ind) + " ";
+//        }
+//        inds = inds.substr(0, inds.size()-1) + ")";
+//        cout<<inds;
+//        ui->FStextBrowserDatabaseInfo->append("[SFS]max_ind: "  +  QString::fromStdString(inds) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
     }
 }
 
