@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-
+#include <iostream>
 
 #include <QImage>
 #include <QDebug>
@@ -69,11 +69,25 @@ void MainWindow::on_FSpushButtonOpenFile_clicked()
     updateDatabaseInfo();
 }
 
+std::vector<std::vector<int>> CreateCombinations(int range, int size) {
+       std::vector<std::vector<int>> combinations;
+       std::vector<bool> v(range);
+       std::fill(v.begin(), v.begin() + size, true);
+       do {
+           std::vector<int> singleCombination;
+           for (int i = 0; i < range; ++i) {
+               if (v[i]) {
+                   singleCombination.push_back(i+1);
+               }
+           }
+           combinations.push_back(singleCombination);
+       } while (std::prev_permutation(v.begin(), v.end()));
+       return combinations;
+}
+
 void MainWindow::on_FSpushButtonCompute_clicked()
 {
     int dimension = ui->FScomboBox->currentText().toInt();
-
-
     if( ui->FSradioButtonFisher ->isChecked())
     {
     if (dimension == 1 && database.getNoClass() == 2)
@@ -112,6 +126,16 @@ void MainWindow::on_FSpushButtonCompute_clicked()
 
             ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::number(max_ind) + " " + QString::number(FLD));
           }
+    if (dimension > 1 && database.getNoClass() == 2)
+    {
+        std::vector<std::vector<int>> combinations = CreateCombinations(database.getNoFeatures(),dimension);
+        for (std::vector<int> &combination : combinations) {
+            for (int &value : combination) {
+                std::cout << (value) << " ";
+            }
+            std::cout << "\n";
+        }
+    }
      }
 }
 
