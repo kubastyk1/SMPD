@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 vector<vector<int>> CreateCombinations(int range, int size) {
        std::vector<std::vector<int>> combinations;
        std::vector<bool> v(range);
@@ -51,6 +52,7 @@ fisherPair* computeFisher(Database db) {
 }
 
 void computeFisher(int dimension, Database db) {
+    vector<fisherPair> fpMulti;
     vector<vector<int>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
     for (vector<int> &combination : combinations) {
         for (int &value : combination) {

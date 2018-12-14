@@ -5,10 +5,10 @@ using namespace std;
 #ifndef FISHER_H
 #define FISHER_H
 
-struct fisherPair {
+typedef struct {
     float FLD;
     int max_ind;
-};
+} fisherPair;
 
 vector<vector<int>> CreateCombinations(int range, int size);
 fisherPair* computeFisher(Database db);
