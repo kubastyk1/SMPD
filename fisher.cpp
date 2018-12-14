@@ -12,6 +12,23 @@ typedef struct {
     map<string, float> classStds;
 } ASdata;
 
+typedef struct {
+    vector<Object> objects;
+    uint amount;
+} classObjects;
+
+classObjects* getObjectsOfClass(uint objClass, Database db) {
+    classObjects* co = new classObjects();
+    co->amount = 0;
+    for(Object o : db.getObjects()) {
+        if(o.getClassName() == db.getClassNames()[objClass]) {
+            co->objects.push_back(o);
+            co->amount++;
+        }
+    }
+    return co;
+}
+
 vector<vector<uint>> CreateCombinations(uint range, uint size) {
        vector<vector<uint>> combinations;
        vector<bool> v(range);
@@ -69,16 +86,22 @@ void computeFisher(uint dimension, Database db) {
     vector<fisherPair> fpMulti;
     vector<vector<uint>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
     vector<ASdata*> asd = calcAS(db);
+    classObjects* classAObjects = getObjectsOfClass(0, db);
+    classObjects* classBObjects = getObjectsOfClass(1, db);
     for (vector<uint> &combo : combinations) {
         boost::numeric::ublas::matrix<double> MA(dimension,4), MB(dimension,4);
-        for (uint i = 0; i < dimension; i++) {
+        boost::numeric::ublas::matrix<double> SA_X(dimension,4), SB_X(dimension,4);
+        for (uint i = 0; i < dimension; i++) { // POPULATING MA, MB, SA_X, SB_X
             for (uint j = 0; j < 4; j++) {
                 MA(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[0]]);
                 MB(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[1]]);
+                SA_X(i,j) = classAObjects->objects.at(j).getFeatures()[combo[i]-1];
+                SB_X(i,j) = classBObjects->objects.at(j).getFeatures()[combo[i]-1];
+                //cout << classAObjects->objects.at(j).getFeatures()[combo[i]-1] << " ";
                 //cout << MA(i,j) << " ";
             }
             //cout << endl;
         }
-        //cout << "------------" <<endl;
+       // cout << "------------" <<endl;
     }
 }
