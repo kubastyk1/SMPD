@@ -27,28 +27,34 @@ vector<vector<uint>> CreateCombinations(uint range, uint size) {
        return combinations;
 }
 
-
-
-fisherPair* computeFisher(Database db) {
-    fisherPair* FP = new fisherPair;
-    float tmp;
-    ASdata asd;
+vector<ASdata*> calcAS(Database db) {
+    vector<ASdata*> asd;
     for (unsigned int i = 0; i < db.getNoFeatures(); ++i)
     {
-        map<string, float> classAverages;
-        map<string, float> classStds;
+        ASdata* tmp = new ASdata();
         for (auto const &ob : db.getObjects())
         {
-            classAverages[ob.getClassName()] += ob.getFeatures()[i];
-            classStds[ob.getClassName()] += ob.getFeatures()[i] * ob.getFeatures()[i];
+            tmp->classAverages[ob.getClassName()] += ob.getFeatures()[i];
+            tmp->classStds[ob.getClassName()] += ob.getFeatures()[i] * ob.getFeatures()[i];
         }
         for_each(db.getClassCounters().begin(), db.getClassCounters().end(), [&](const pair<string, int> &it)
         {
-            classAverages[it.first] /= it.second;
-            classStds[it.first] = sqrt(classStds[it.first] / it.second - classAverages[it.first] * classAverages[it.first]);
+            tmp->classAverages[it.first] /= it.second;
+            tmp->classStds[it.first] = sqrt(tmp->classStds[it.first] / it.second - tmp->classAverages[it.first] * tmp->classAverages[it.first]);
         }
         );
-        tmp = abs(classAverages[ db.getClassNames()[0] ] - classAverages[db.getClassNames()[1]]) / (classStds[db.getClassNames()[0]] + classStds[db.getClassNames()[1]]);
+        asd.push_back(tmp);
+      }
+    return asd;
+}
+
+fisherPair* computeFisher(Database db) {
+    fisherPair* FP = new fisherPair;
+    vector<ASdata*> asd = calcAS(db);
+    float tmp;
+    for (unsigned int i = 0; i < db.getNoFeatures(); ++i)
+    {
+        tmp = abs(asd.at(i)->classAverages[ db.getClassNames()[0] ] - asd.at(i)->classAverages[db.getClassNames()[1]]) / (asd.at(i)->classStds[db.getClassNames()[0]] + asd.at(i)->classStds[db.getClassNames()[1]]);
         if (tmp > FP->FLD)
         {
             FP->FLD = tmp;

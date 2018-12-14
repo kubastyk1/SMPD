@@ -24,7 +24,8 @@ SOURCES += \
         main.cpp \
     mainwindow.cpp \
     database.cpp \
-    object.cpp
+    object.cpp \
+    fisher.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -43,4 +44,5 @@ HEADERS += \
     database.h \
     object.h \
     Classifier.h \
-    matrixutil.hpp
+    matrixutil.hpp \
+    fisher.h
