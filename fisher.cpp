@@ -1,6 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <boost/numeric/ublas/matrix.hpp>
 #include "database.h"
 #include "fisher.h"
 
@@ -67,10 +68,12 @@ fisherPair* computeFisher(Database db) {
 void computeFisher(uint dimension, Database db) {
     vector<fisherPair> fpMulti;
     vector<vector<uint>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
-    for (vector<uint> &combination : combinations) {
-        for (uint &value : combination) {
-            cout << (value) << " ";
+    vector<ASdata*> asd = calcAS(db);
+    for (vector<uint> &combo : combinations) {
+        vector<float> MA, MB;
+        for (uint &atr : combo) {
+            MA.push_back(asd.at(atr-1)->classAverages[db.getClassNames()[0]]);
+            MB.push_back(asd.at(atr-1)->classAverages[db.getClassNames()[1]]);
         }
-        cout << "\n";
     }
 }
