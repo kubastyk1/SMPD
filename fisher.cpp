@@ -130,38 +130,42 @@ void computeFisher(uint dimension, Database db) {
         bnu::matrix<double> SB_final(dimension, dimension);
         SA_final = prod(MA - SA_X, trans(MA - SA_X))/classAObjects->amount;
         SB_final = prod(MB - SB_X, trans(MB - SB_X))/classBObjects->amount;
-//        for (uint i = 0; i < dimension; i++) {
-//            for (uint j = 0; j < dimension; j++) {
-//                cout << SA_final(i,j) << " ";
-//            }
-//            cout << endl;
-//        }
-//       cout << "|------------|" <<endl;
-//        for (uint i = 0; i < dimension; i++) {
-//            for (uint j = 0; j < dimension; j++) {
-//                cout << SB_final(i,j) << " ";
-//            }
-//            cout << endl;
-//        }
-//       cout << "|------------|" <<endl;
-        double divisor;
-        cout << "------------" <<endl;
         for (uint i = 0; i < dimension; i++) {
-            double tmp = MA(i,1) - MB(i,1);
-            divisor += tmp * tmp;
-        }
-        for(uint i = 0; i < dimension; i++) {
-            for(uint j = 0; j < dimension; j++) {
-                cout << SA_final(i,j) - SB_final(i,j) << " | ";
+            for (uint j = 0; j < dimension; j++) {
+                cout << SA_final(i,j) << " ";
             }
             cout << endl;
         }
-        double divident = det(SA_final - SB_final);
-        divisor = sqrt(divisor);
-        double fisher = divident/divisor;
-        cout << "Divident:" << divident << endl;
-        cout << "Divisor:" << divisor << endl;
+       cout << "|------------|" <<endl;
+        for (uint i = 0; i < dimension; i++) {
+            for (uint j = 0; j < dimension; j++) {
+                cout << SB_final(i,j) << " ";
+            }
+            cout << endl;
+        }
+       cout << "|------------|" <<endl;
+        double top;
+        cout << "------------" <<endl;
+        for (uint i = 0; i < dimension; i++) {
+            double tmp = MA(i,1) - MB(i,1);
+            top += tmp * tmp;
+        }
+        bnu::matrix<double> final(dimension, dimension);
+        final = SA_final + SB_final;
+        for(uint i = 0; i < dimension; i++) {
+            for(uint j = 0; j < dimension; j++) {
+                cout << final(i,j) << " | ";
+            }
+            cout << endl;
+        }
+        double bottom = det(SA_final + SB_final);
+        top = sqrt(top);
+        double fisher = top/bottom;
+
+        cout << "Top:" << top << endl;
+        cout << "Bottom:" << bottom << endl;
         cout << "Fisher" << fisher;
         cout << "------------" <<endl;
+        break;
     }
 }
