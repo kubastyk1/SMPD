@@ -123,6 +123,11 @@ fisherPair* computeFisher(uint dimension, Database db, vector<vector<uint>> comb
 //        cout << "-----------" << endl;
 //    }
     for (vector<uint> &combo : combinations) {
+        cout << "COMBO:";
+        for (uint &digit : combo) {
+            cout << digit << " ";
+        }
+        cout<<endl;
         bnu::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
         bnu::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
         for (uint i = 0; i < dimension; i++) {
@@ -141,16 +146,18 @@ fisherPair* computeFisher(uint dimension, Database db, vector<vector<uint>> comb
         SB_final = prod(MB - SB_X, trans(MB - SB_X))/classBObjects->amount;
         double top;
         for (uint i = 0; i < dimension; i++) {
-            double tmp = MA(i,1) - MB(i,1);
+            double tmp = MA(i,0) - MB(i,0);
             top += tmp * tmp;
         }
         bnu::matrix<double> final(dimension, dimension);
         final = SA_final + SB_final;
         double bottom = det(SA_final + SB_final);
         top = sqrt(top);
+        cout<<"TOP:"<<top<<endl;
+        cout<<"BOTTOM:"<<bottom<<endl;
         double fisher = top/bottom;
+        cout<<"FISZER:"<<fisher<<endl;;
         if (fisher > FP->FLD) {
-            //cout << fisher << endl;
             FP->FLD = fisher;
             FP->max_ind = combo;
         }
