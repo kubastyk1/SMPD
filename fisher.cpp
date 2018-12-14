@@ -70,10 +70,15 @@ void computeFisher(uint dimension, Database db) {
     vector<vector<uint>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
     vector<ASdata*> asd = calcAS(db);
     for (vector<uint> &combo : combinations) {
-        vector<float> MA, MB;
-        for (uint &atr : combo) {
-            MA.push_back(asd.at(atr-1)->classAverages[db.getClassNames()[0]]);
-            MB.push_back(asd.at(atr-1)->classAverages[db.getClassNames()[1]]);
+        boost::numeric::ublas::matrix<double> MA(dimension,4), MB(dimension,4);
+        for (uint i = 0; i < dimension; i++) {
+            for (uint j = 0; j < 4; j++) {
+                MA(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[0]]);
+                MB(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[1]]);
+                //cout << MA(i,j) << " ";
+            }
+            //cout << endl;
         }
+        //cout << "------------" <<endl;
     }
 }
