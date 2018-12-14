@@ -89,19 +89,28 @@ void computeFisher(uint dimension, Database db) {
     classObjects* classAObjects = getObjectsOfClass(0, db);
     classObjects* classBObjects = getObjectsOfClass(1, db);
     for (vector<uint> &combo : combinations) {
-        boost::numeric::ublas::matrix<double> MA(dimension,4), MB(dimension,4);
-        boost::numeric::ublas::matrix<double> SA_X(dimension,4), SB_X(dimension,4);
+        boost::numeric::ublas::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
+        boost::numeric::ublas::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
         for (uint i = 0; i < dimension; i++) { // POPULATING MA, MB, SA_X, SB_X
-            for (uint j = 0; j < 4; j++) {
+            for (uint j = 0; j < classAObjects->amount; j++) {
                 MA(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[0]]);
-                MB(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[1]]);
-                SA_X(i,j) = classAObjects->objects.at(j).getFeatures()[combo[i]-1];
-                SB_X(i,j) = classBObjects->objects.at(j).getFeatures()[combo[i]-1];
-                //cout << classAObjects->objects.at(j).getFeatures()[combo[i]-1] << " ";
-                //cout << MA(i,j) << " ";
+                SA_X(i,j) = static_cast<double>(classAObjects->objects.at(j).getFeatures()[combo[i]-1]);
             }
-            //cout << endl;
+            for (uint j = 0; j < classBObjects->amount; j++) {
+                MB(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[1]]);
+                SB_X(i,j) = static_cast<double>(classBObjects->objects.at(j).getFeatures()[combo[i]-1]);
+            }
         }
-       // cout << "------------" <<endl;
+        boost::numeric::ublas::matrix<double> SA_final(dimension, dimension);
+        boost::numeric::ublas::matrix<double> SB_final(dimension, dimension);
+        SA_final = prod(MA - SA_X, trans(MA - SA_X))/classAObjects->amount;
+        SB_final = prod(MB - SB_X, trans(MB - SB_X))/classBObjects->amount;
+//        for (uint i = 0; i < dimension; i++) {
+//            for (uint j = 0; j < dimension; j++) {
+//                cout << SA_final(i,j) << " ";
+//            }
+//            cout << endl;
+//        }
+//       cout << "------------" <<endl;
     }
 }
