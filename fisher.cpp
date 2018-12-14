@@ -1,11 +1,17 @@
 #include <vector>
 #include <algorithm>
+#include <math.h>
 #include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/lu.hpp>
+
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/matrix_proxy.hpp>
 #include "database.h"
 #include "fisher.h"
 
 using namespace std;
+namespace bnu = boost::numeric::ublas;
 
 typedef struct {
     map<string, float> classAverages;
@@ -16,6 +22,25 @@ typedef struct {
     vector<Object> objects;
     uint amount;
 } classObjects;
+
+double det(bnu::matrix<double> m)
+{
+  assert(m.size1() == m.size2() && "Can only calculate the determinant of square matrices");
+  bnu::permutation_matrix<std::size_t> pivots(m.size1() );
+  const int is_singular = bnu::lu_factorize(m, pivots);
+  if (is_singular) return 0.0;
+  double d = 1.0;
+  const std::size_t sz = pivots.size();
+  for (std::size_t i=0; i != sz; ++i)
+  {
+    if (pivots(i) != i)
+    {
+      d *= -1.0;
+    }
+    d *= m(i,i);
+  }
+  return d;
+}
 
 classObjects* getObjectsOfClass(uint objClass, Database db) {
     classObjects* co = new classObjects();
@@ -89,8 +114,8 @@ void computeFisher(uint dimension, Database db) {
     classObjects* classAObjects = getObjectsOfClass(0, db);
     classObjects* classBObjects = getObjectsOfClass(1, db);
     for (vector<uint> &combo : combinations) {
-        boost::numeric::ublas::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
-        boost::numeric::ublas::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
+        bnu::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
+        bnu::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
         for (uint i = 0; i < dimension; i++) { // POPULATING MA, MB, SA_X, SB_X
             for (uint j = 0; j < classAObjects->amount; j++) {
                 MA(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[0]]);
@@ -101,8 +126,8 @@ void computeFisher(uint dimension, Database db) {
                 SB_X(i,j) = static_cast<double>(classBObjects->objects.at(j).getFeatures()[combo[i]-1]);
             }
         }
-        boost::numeric::ublas::matrix<double> SA_final(dimension, dimension);
-        boost::numeric::ublas::matrix<double> SB_final(dimension, dimension);
+        bnu::matrix<double> SA_final(dimension, dimension);
+        bnu::matrix<double> SB_final(dimension, dimension);
         SA_final = prod(MA - SA_X, trans(MA - SA_X))/classAObjects->amount;
         SB_final = prod(MB - SB_X, trans(MB - SB_X))/classBObjects->amount;
 //        for (uint i = 0; i < dimension; i++) {
@@ -111,6 +136,32 @@ void computeFisher(uint dimension, Database db) {
 //            }
 //            cout << endl;
 //        }
-//       cout << "------------" <<endl;
+//       cout << "|------------|" <<endl;
+//        for (uint i = 0; i < dimension; i++) {
+//            for (uint j = 0; j < dimension; j++) {
+//                cout << SB_final(i,j) << " ";
+//            }
+//            cout << endl;
+//        }
+//       cout << "|------------|" <<endl;
+        double divisor;
+        cout << "------------" <<endl;
+        for (uint i = 0; i < dimension; i++) {
+            double tmp = MA(i,1) - MB(i,1);
+            divisor += tmp * tmp;
+        }
+        for(uint i = 0; i < dimension; i++) {
+            for(uint j = 0; j < dimension; j++) {
+                cout << SA_final(i,j) - SB_final(i,j) << " | ";
+            }
+            cout << endl;
+        }
+        double divident = det(SA_final - SB_final);
+        divisor = sqrt(divisor);
+        double fisher = divident/divisor;
+        cout << "Divident:" << divident << endl;
+        cout << "Divisor:" << divisor << endl;
+        cout << "Fisher" << fisher;
+        cout << "------------" <<endl;
     }
 }
