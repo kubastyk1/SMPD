@@ -72,13 +72,13 @@ void MainWindow::on_FSpushButtonOpenFile_clicked()
 
 void MainWindow::on_FSpushButtonCompute_clicked()
 {
-    int dimension = ui->FScomboBox->currentText().toInt();
+    uint dimension = static_cast<uint>(ui->FScomboBox->currentText().toInt());
     if( ui->FSradioButtonFisher ->isChecked())
     {
         if (dimension == 1 && database.getNoClass() == 2)
         {
             fisherPair* FP = computeFisher(database);
-            ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::number(FP->max_ind) + " " + QString::number(FP->FLD));
+            ui->FStextBrowserDatabaseInfo->append("max_ind: "  +  QString::number(FP->max_ind) + " " + QString::number(static_cast<double>(FP->FLD)));
         }
         else if (dimension > 1 && database.getNoClass() == 2)
         {

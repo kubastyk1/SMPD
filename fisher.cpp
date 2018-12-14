@@ -6,14 +6,18 @@
 
 using namespace std;
 
+typedef struct {
+    map<string, float> classAverages;
+    map<string, float> classStds;
+} ASdata;
 
-vector<vector<int>> CreateCombinations(int range, int size) {
-       std::vector<std::vector<int>> combinations;
-       std::vector<bool> v(range);
-       std::fill(v.begin(), v.begin() + size, true);
+vector<vector<uint>> CreateCombinations(uint range, uint size) {
+       vector<vector<uint>> combinations;
+       vector<bool> v(range);
+       fill(v.begin(), v.begin() + static_cast<int>(size), true);
        do {
-           std::vector<int> singleCombination;
-           for (int i = 0; i < range; ++i) {
+           vector<uint> singleCombination;
+           for (uint i = 0; i < range; ++i) {
                if (v[i]) {
                    singleCombination.push_back(i+1);
                }
@@ -23,9 +27,12 @@ vector<vector<int>> CreateCombinations(int range, int size) {
        return combinations;
 }
 
+
+
 fisherPair* computeFisher(Database db) {
-    fisherPair* FP;
+    fisherPair* FP = new fisherPair;
     float tmp;
+    ASdata asd;
     for (unsigned int i = 0; i < db.getNoFeatures(); ++i)
     {
         map<string, float> classAverages;
@@ -51,11 +58,11 @@ fisherPair* computeFisher(Database db) {
     return FP;
 }
 
-void computeFisher(int dimension, Database db) {
+void computeFisher(uint dimension, Database db) {
     vector<fisherPair> fpMulti;
-    vector<vector<int>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
-    for (vector<int> &combination : combinations) {
-        for (int &value : combination) {
+    vector<vector<uint>> combinations = CreateCombinations(db.getNoFeatures(),dimension);
+    for (vector<uint> &combination : combinations) {
+        for (uint &value : combination) {
             cout << (value) << " ";
         }
         cout << "\n";
