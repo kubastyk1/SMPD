@@ -94,13 +94,13 @@ void MainWindow::on_FSpushButtonCompute_clicked()
     }
     else if( ui -> FSradioButtonSFS -> isChecked()){
         fisherPair* FP = SFS(dimension,database);
-//        string inds = "(";
-//        for (uint ind : FP->max_ind) {
-//            inds += to_string(ind) + " ";
-//        }
-//        inds = inds.substr(0, inds.size()-1) + ")";
-//        cout<<inds;
-//        ui->FStextBrowserDatabaseInfo->append("[SFS]max_ind: "  +  QString::fromStdString(inds) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
+        string inds = "(";
+        for (uint ind : FP->max_ind) {
+            inds += to_string(ind) + " ";
+        }
+        inds = inds.substr(0, inds.size()-1) + ")";
+        cout<<inds;
+        ui->FStextBrowserDatabaseInfo->append("[SFS]max_ind: "  +  QString::fromStdString(inds) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
     }
 }
 
