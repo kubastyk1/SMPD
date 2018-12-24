@@ -32,6 +32,7 @@ private:
     void FSupdateButtonState(void);
     void FSsetButtonState(bool state);
 
+    void CupdateButtonState(void);
 
 
 private slots:

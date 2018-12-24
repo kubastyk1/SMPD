@@ -33,6 +33,9 @@ void MainWindow::updateDatabaseInfo()
     ui->FStextBrowserDatabaseInfo->append("noObjects: "  +  QString::number(database.getNoObjects()));
     ui->FStextBrowserDatabaseInfo->append("noFeatures: "  +  QString::number(database.getNoFeatures()));
 
+    ui->CtextBrowser->setText("noClass: " +  QString::number(database.getNoClass()));
+    ui->CtextBrowser->append("noObjects: "  +  QString::number(database.getNoObjects()));
+    ui->CtextBrowser->append("noFeatures: "  +  QString::number(database.getNoFeatures()));
 }
 
 void MainWindow::FSupdateButtonState(void)
@@ -46,6 +49,18 @@ void MainWindow::FSupdateButtonState(void)
 
 }
 
+void MainWindow::CupdateButtonState(void){
+    std::vector<std::string> classifierMethods = {"NN", "NM", "k-NN", "k-NM" };
+
+    for(uint i = 0; i < classifierMethods.size(); i++){
+        ui -> CcomboBoxClassifiers -> addItem(QString::fromStdString(classifierMethods[i]));
+    }
+
+    //Select value for k-NN and k-NM - odd numbers, half of the number of all objects
+    for(uint i = 1; i < database.getNoObjects()/2; i += 2){
+        ui -> CcomboBoxK -> addItem(QString::number(i));
+    }
+}
 
 void MainWindow::FSsetButtonState(bool state)
 {
@@ -121,7 +136,17 @@ void MainWindow::on_PpushButtonSelectFolder_clicked()
 
 void MainWindow::on_CpushButtonOpenFile_clicked()
 {
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open TextFile"), "", tr("Texts Files (*.txt)"));
 
+    if ( !database.load(fileName.toStdString()) )
+        QMessageBox::warning(this, "Warning", "File corrupted !!!");
+    else
+        QMessageBox::information(this, fileName, "File loaded !!!");
+
+    FSupdateButtonState();
+    CupdateButtonState();
+    updateDatabaseInfo();
 }
 
 void MainWindow::on_CpushButtonSaveFile_clicked()
