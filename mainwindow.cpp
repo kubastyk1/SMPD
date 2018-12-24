@@ -8,7 +8,7 @@
 #include <QDebug>
 
 
-
+std::vector<Object> trainingSet, testSet;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -36,6 +36,7 @@ void MainWindow::updateDatabaseInfo()
     ui->CtextBrowser->setText("noClass: " +  QString::number(database.getNoClass()));
     ui->CtextBrowser->append("noObjects: "  +  QString::number(database.getNoObjects()));
     ui->CtextBrowser->append("noFeatures: "  +  QString::number(database.getNoFeatures()));
+    ui->CplainTextEditTrainingPart->appendPlainText(QString::number(80));
 }
 
 void MainWindow::FSupdateButtonState(void)
@@ -156,7 +157,21 @@ void MainWindow::on_CpushButtonSaveFile_clicked()
 
 void MainWindow::on_CpushButtonTrain_clicked()
 {
+    std::vector<Object> allObjects = database.getObjects();
 
+    int percentNumber = ui->CplainTextEditTrainingPart->toPlainText().toInt();
+    int expectedSizeOfTrainingSet = static_cast<int>(allObjects.size() * (percentNumber / 100.0));
+
+    for (int i = 0; i < expectedSizeOfTrainingSet; i++) {
+        uint random = rand() % allObjects.size();
+        trainingSet.push_back(allObjects.at(random));
+        allObjects.erase(allObjects.begin() + random);
+    }
+
+    testSet = allObjects;
+
+    cout << "TrainingSet size: " << trainingSet.size() << endl;
+    cout << "TestSet size: " << testSet.size() << endl;
 }
 
 void MainWindow::on_CpushButtonExecute_clicked()
