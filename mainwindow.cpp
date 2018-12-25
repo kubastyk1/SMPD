@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include "fisher.h"
+#include "Classifier.cpp"
+
 
 #include <QImage>
 #include <QDebug>
@@ -170,11 +172,25 @@ void MainWindow::on_CpushButtonTrain_clicked()
 
     testSet = allObjects;
 
-    cout << "TrainingSet size: " << trainingSet.size() << endl;
-    cout << "TestSet size: " << testSet.size() << endl;
+    ui->CtextBrowser->append("Training set size: " +  QString::number(trainingSet.size()));
+    ui->CtextBrowser->append("Test set size: " +  QString::number(testSet.size()));
 }
 
 void MainWindow::on_CpushButtonExecute_clicked()
 {
+    Classifier *c;
+    double percentOfClassified = 0;
+    std::string methodName = ui -> CcomboBoxClassifiers -> currentText().toStdString();
 
+    if(methodName == "NN"){
+        percentOfClassified = c->classifyNN(trainingSet, testSet);
+    } else if (methodName == "NM") {
+        percentOfClassified = c->classifyNM(trainingSet, testSet);
+    } else if (methodName == "k-NN") {
+        percentOfClassified = c->classifyKNN(trainingSet, testSet);
+    } else if (methodName == "k-NM") {
+        percentOfClassified = c->classifyKNM(trainingSet, testSet);
+    }
+
+    ui->CtextBrowser->append("Percent of properly classified objects: " +  QString::number(percentOfClassified) + "%");
 }
