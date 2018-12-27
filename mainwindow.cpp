@@ -180,6 +180,7 @@ void MainWindow::on_CpushButtonExecute_clicked()
 {
     Classifier *c;
     double percentOfClassified = 0;
+    uint k = static_cast<uint>(ui -> CcomboBoxK -> currentText().toInt());
     std::string methodName = ui -> CcomboBoxClassifiers -> currentText().toStdString();
 
     if(methodName == "NN"){
@@ -187,9 +188,9 @@ void MainWindow::on_CpushButtonExecute_clicked()
     } else if (methodName == "NM") {
         percentOfClassified = c->classifyNM(trainingSet, testSet);
     } else if (methodName == "k-NN") {
-        percentOfClassified = c->classifyKNN(trainingSet, testSet);
+        percentOfClassified = c->classifyKNN(trainingSet, testSet, k, database.getClassNames());
     } else if (methodName == "k-NM") {
-        percentOfClassified = c->classifyKNM(trainingSet, testSet);
+        percentOfClassified = c->classifyKNM(trainingSet, testSet, k, database.getClassNames());
     }
 
     ui->CtextBrowser->append("Percent of properly classified objects: " +  QString::number(percentOfClassified) + "%");

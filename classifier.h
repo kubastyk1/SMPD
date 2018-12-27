@@ -15,8 +15,8 @@ class Classifier
 
         double classifyNN(const std::vector<Object> &trainSet, const std::vector<Object> &testSet);
         double classifyNM(const std::vector<Object> &trainSet, const std::vector<Object> &testSet);
-        double classifyKNN(const std::vector<Object> &trainSet, const std::vector<Object> &testSet);
-        double classifyKNM(const std::vector<Object> &trainSet, const std::vector<Object> &testSet);
+        double classifyKNN(const std::vector<Object> &trainSet, const std::vector<Object> &testSet, unsigned int k, const std::vector<std::string> &classNames);
+        double classifyKNM(const std::vector<Object> &trainSet, const std::vector<Object> &testSet, unsigned int k, const std::vector<std::string> &classNames);
 
     private:
         std::vector<Object> trainingSet;
