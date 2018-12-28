@@ -58,9 +58,69 @@ double Classifier::classifyNN( const std::vector<Object> &trainSet, const std::v
     return numberOfProperPredictions * (100.0 / testSet.size());
 }
 
-double Classifier::classifyNM(const std::vector<Object> &trainSet, const std::vector<Object> &testSet) {
+double Classifier::classifyNM(const std::vector<Object> &trainSet, const std::vector<Object> &testSet, const std::vector<std::string> &classNames) {
 
-    return 0;
+    std::map <std::string, vector<Object> > classObjectsMap;
+    std::map <std::string, vector<double> > classMiddleValuesMap;
+    int numberOfProperPredictions = 0;
+    vector<double> tempMiddleValues;
+    double sum = 0;
+
+    for (Object o : trainSet) {
+        vector<Object> tempObjects;
+        if (classObjectsMap.find(o.getClassName()) != classObjectsMap.end()) {
+            tempObjects = classObjectsMap[o.getClassName()];
+        }
+        tempObjects.push_back(o);
+        classObjectsMap[o.getClassName()] = tempObjects;
+    }
+
+    for (std::string className : classNames) {
+        vector<Object> classObjects = classObjectsMap.find(className) -> second;
+        tempMiddleValues.clear();
+        for (unsigned int i = 0; i < classObjects[0].getFeaturesNumber(); i++) {
+            sum = 0;
+            for (Object o : classObjects) {
+                sum += static_cast<double>(o.getFeatures()[i]);
+            }
+            tempMiddleValues.push_back(sum/classObjects.size());
+        }
+        classMiddleValuesMap[className] = tempMiddleValues;
+    }
+
+    for (unsigned int i = 0; i < testSet.size(); i++) {
+        bnu::matrix<double> testSetMatrix = convertToMatrix(testSet[i]);
+        double lowestValue = 0;
+        std::string lowestValueClass;
+
+        for (std::string className : classNames) {
+            vector<double> classMiddleValues = classMiddleValuesMap.find(className) -> second;
+            bnu::matrix<double> trainSetMatrix = convertToMatrix(classMiddleValues);
+
+            bnu::matrix<double> resultMatrix = trainSetMatrix - testSetMatrix;
+            sum = 0;
+
+            for (unsigned int j = 0; j < resultMatrix.size1(); j++) {
+                sum += pow(resultMatrix(j,0), 2);
+            }
+
+            double result = sqrt(sum);
+
+            if (lowestValue == 0) {
+                lowestValue = result;
+                lowestValueClass = className;
+            } else if (result < lowestValue) {
+                lowestValue = result;
+                lowestValueClass = className;
+            }
+        }
+
+        if (testSet[i].getClassName() == lowestValueClass) {
+            numberOfProperPredictions += 1;
+        }
+    }
+
+    return numberOfProperPredictions * (100.0 / testSet.size());
 }
 
 double Classifier::classifyKNN(const std::vector<Object> &trainSet, const std::vector<Object> &testSet, unsigned int kValue, const std::vector<std::string> &classNames) {
@@ -145,6 +205,14 @@ bnu::matrix<double> Classifier::convertToMatrix(Object object) {
     bnu::matrix<double> matrix(object.getFeaturesNumber(), 1);
     for (unsigned int i = 0; i < object.getFeaturesNumber(); i++) {
         matrix(i,0) = object.getFeatures()[i];
+    }
+    return matrix;
+}
+
+bnu::matrix<double> Classifier::convertToMatrix(vector<double> vector) {
+    bnu::matrix<double> matrix(vector.size(), 1);
+    for (unsigned int i = 0; i < vector.size(); i++) {
+        matrix(i,0) = vector[i];
     }
     return matrix;
 }

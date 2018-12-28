@@ -186,7 +186,7 @@ void MainWindow::on_CpushButtonExecute_clicked()
     if(methodName == "NN"){
         percentOfClassified = c->classifyNN(trainingSet, testSet);
     } else if (methodName == "NM") {
-        percentOfClassified = c->classifyNM(trainingSet, testSet);
+        percentOfClassified = c->classifyNM(trainingSet, testSet, database.getClassNames());
     } else if (methodName == "k-NN") {
         percentOfClassified = c->classifyKNN(trainingSet, testSet, k, database.getClassNames());
     } else if (methodName == "k-NM") {
