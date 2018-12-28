@@ -7,7 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Gandalf
 TEMPLATE = app
 
-INCLUDEPATH += D:\boost_1_59_0\
+INCLUDEPATH += C:\Users\ezstaja\Documents\Boost\boost_1_55_0\
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -25,7 +25,8 @@ SOURCES += \
     mainwindow.cpp \
     database.cpp \
     object.cpp \
-    fisher.cpp
+    fisher.cpp \
+    Classifier.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -45,4 +46,5 @@ HEADERS += \
     object.h \
     Classifier.h \
     matrixutil.hpp \
-    fisher.h
+    fisher.h \
+    classifier.h
