@@ -161,6 +161,9 @@ void MainWindow::on_CpushButtonTrain_clicked()
 {
     std::vector<Object> allObjects = database.getObjects();
 
+    trainingSet.clear();
+    testSet.clear();
+
     int percentNumber = ui->CplainTextEditTrainingPart->toPlainText().toInt();
     int expectedSizeOfTrainingSet = static_cast<int>(allObjects.size() * (percentNumber / 100.0));
 
