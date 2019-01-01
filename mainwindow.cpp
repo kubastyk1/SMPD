@@ -11,6 +11,7 @@
 
 
 std::vector<Object> trainingSet, testSet;
+std::vector<std::vector<Object>> crossValidationSet;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -160,23 +161,42 @@ void MainWindow::on_CpushButtonSaveFile_clicked()
 void MainWindow::on_CpushButtonTrain_clicked()
 {
     std::vector<Object> allObjects = database.getObjects();
+    uint crossValidationValue = ui -> CplainTextEditCrossValidation -> toPlainText().toUInt();
 
-    trainingSet.clear();
-    testSet.clear();
+    if (crossValidationValue == 0) {
+        trainingSet.clear();
+        testSet.clear();
 
-    int percentNumber = ui->CplainTextEditTrainingPart->toPlainText().toInt();
-    int expectedSizeOfTrainingSet = static_cast<int>(allObjects.size() * (percentNumber / 100.0));
+        int percentNumber = ui->CplainTextEditTrainingPart->toPlainText().toInt();
+        int expectedSizeOfTrainingSet = static_cast<int>(allObjects.size() * (percentNumber / 100.0));
 
-    for (int i = 0; i < expectedSizeOfTrainingSet; i++) {
-        uint random = rand() % allObjects.size();
-        trainingSet.push_back(allObjects.at(random));
-        allObjects.erase(allObjects.begin() + random);
+        for (int i = 0; i < expectedSizeOfTrainingSet; i++) {
+            uint random = rand() % allObjects.size();
+            trainingSet.push_back(allObjects.at(random));
+            allObjects.erase(allObjects.begin() + random);
+        }
+
+        testSet = allObjects;
+
+        ui->CtextBrowser->append("Training set size: " +  QString::number(trainingSet.size()));
+        ui->CtextBrowser->append("Test set size: " +  QString::number(testSet.size()));
+    } else {
+        std::vector<Object> tempSet;
+        uint expectedSizeOfSet = allObjects.size()/crossValidationValue;
+
+        for (uint i = 0; i < crossValidationValue; i++){
+            for (uint j = 0; j < expectedSizeOfSet; j++) {
+                uint random = rand() % allObjects.size();
+                tempSet.push_back(allObjects.at(random));
+                allObjects.erase(allObjects.begin() + random);
+            }
+            crossValidationSet.push_back(tempSet);
+            tempSet.clear();
+        }
+
+        ui->CtextBrowser->append("Cross validation sections number: " +  QString::number(crossValidationSet.size()));
+        ui->CtextBrowser->append("Cross validation section size: " +  QString::number(crossValidationSet.at(0).size()));
     }
-
-    testSet = allObjects;
-
-    ui->CtextBrowser->append("Training set size: " +  QString::number(trainingSet.size()));
-    ui->CtextBrowser->append("Test set size: " +  QString::number(testSet.size()));
 }
 
 void MainWindow::on_CpushButtonExecute_clicked()
@@ -185,16 +205,47 @@ void MainWindow::on_CpushButtonExecute_clicked()
     double percentOfClassified = 0;
     uint k = static_cast<uint>(ui -> CcomboBoxK -> currentText().toInt());
     std::string methodName = ui -> CcomboBoxClassifiers -> currentText().toStdString();
+    uint crossValidationValue = ui -> CplainTextEditCrossValidation -> toPlainText().toUInt();
 
-    if(methodName == "NN"){
-        percentOfClassified = c->classifyNN(trainingSet, testSet);
-    } else if (methodName == "NM") {
-        percentOfClassified = c->classifyNM(trainingSet, testSet, database.getClassNames());
-    } else if (methodName == "k-NN") {
-        percentOfClassified = c->classifyKNN(trainingSet, testSet, k, database.getClassNames());
-    } else if (methodName == "k-NM") {
-        percentOfClassified = c->classifyKNM(trainingSet, testSet, k, database.getClassNames());
+    if (crossValidationValue == 0) {
+        if(methodName == "NN"){
+            percentOfClassified = c->classifyNN(trainingSet, testSet);
+        } else if (methodName == "NM") {
+            percentOfClassified = c->classifyNM(trainingSet, testSet, database.getClassNames());
+        } else if (methodName == "k-NN") {
+            percentOfClassified = c->classifyKNN(trainingSet, testSet, k, database.getClassNames());
+        } else if (methodName == "k-NM") {
+            percentOfClassified = c->classifyKNM(trainingSet, testSet, k, database.getClassNames());
+        }
+
+        ui->CtextBrowser->append("Percent of properly classified objects: " +  QString::number(percentOfClassified) + "%");
+    } else {
+        double averagePercentage = 0;
+
+        for (uint i = 0; i < crossValidationValue; i++) {
+            testSet = crossValidationSet.at(i);
+            trainingSet.clear();
+
+            for (uint j = 0; j < crossValidationSet.size(); j++) {
+                if (i != j) {
+                    trainingSet.insert(trainingSet.end(), crossValidationSet.at(i).begin(), crossValidationSet.at(i).end());
+                }
+            }
+
+            if(methodName == "NN"){
+                percentOfClassified = c->classifyNN(trainingSet, testSet);
+            } else if (methodName == "NM") {
+                percentOfClassified = c->classifyNM(trainingSet, testSet, database.getClassNames());
+            } else if (methodName == "k-NN") {
+                percentOfClassified = c->classifyKNN(trainingSet, testSet, k, database.getClassNames());
+            } else if (methodName == "k-NM") {
+                percentOfClassified = c->classifyKNM(trainingSet, testSet, k, database.getClassNames());
+            }
+
+            averagePercentage += percentOfClassified;
+            cout << "Percent of properly classified objects: " << percentOfClassified << endl;
+        }
+
+        ui->CtextBrowser->append("Average percentage of properly classified objects: " +  QString::number(averagePercentage / crossValidationSet.size()) + "%");
     }
-
-    ui->CtextBrowser->append("Percent of properly classified objects: " +  QString::number(percentOfClassified) + "%");
 }

@@ -48,10 +48,6 @@ double Classifier::classifyNN( const std::vector<Object> &trainSet, const std::v
         if (testSet[i].getClassName() == trainSet[indexOfLowestTrainSetValue].getClassName()) {
             numberOfProperPredictions += 1;
         }
-
-        cout << "Lowest value: " << lowestTrainSetValue << endl;
-        cout << "Test set classname: " << testSet[i].getClassName() << endl;
-        cout << "Train set classname: " << trainSet[indexOfLowestTrainSetValue].getClassName() << endl;
     }
 
     cout << "Number of proper predictions: " << numberOfProperPredictions << endl;

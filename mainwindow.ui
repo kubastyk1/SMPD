@@ -291,8 +291,8 @@
      <widget class="QLabel" name="ClabelTraningPart">
       <property name="geometry">
        <rect>
-        <x>300</x>
-        <y>70</y>
+        <x>290</x>
+        <y>60</y>
         <width>81</width>
         <height>31</height>
        </rect>
@@ -308,6 +308,29 @@
         <y>10</y>
         <width>256</width>
         <height>192</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="ClabelTraningPart_2">
+      <property name="geometry">
+       <rect>
+        <x>270</x>
+        <y>110</y>
+        <width>101</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;Cross validation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QPlainTextEdit" name="CplainTextEditCrossValidation">
+      <property name="geometry">
+       <rect>
+        <x>380</x>
+        <y>110</y>
+        <width>71</width>
+        <height>31</height>
        </rect>
       </property>
      </widget>
