@@ -123,35 +123,35 @@ fisherPair* computeFisher(uint dimension, Database db, vector<vector<uint>> comb
 //        cout << "-----------" << endl;
 //    }
     for (vector<uint> &combo : combinations) {
-        cout << "COMBO:";
-        for (uint &digit : combo) {
-            cout << digit << " ";
-        }
-        cout<<endl;
+//        cout << "COMBO:";
+//        for (uint &digit : combo) {
+//            cout << digit << " ";
+//        }
+//        cout<<endl;
         bnu::matrix<double> MA(dimension,classAObjects->amount), MB(dimension,classBObjects->amount);
         bnu::matrix<double> SA_X(dimension,classAObjects->amount), SB_X(dimension,classBObjects->amount);
         for (uint i = 0; i < dimension; i++) {
             for (uint j = 0; j < classAObjects->amount; j++) {
-                cout << "j:"<<j<<endl;
-                cout << "dimension:" <<dimension<<endl;
+                //cout << "j:"<<j<<endl;
+                //cout << "dimension:" <<dimension<<endl;
                 MA(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[0]]);
                 SA_X(i,j) = static_cast<double>(classAObjects->objects.at(j).getFeatures()[combo[i]-1]);
             }
             for (uint j = 0; j < classBObjects->amount; j++) {
-                cout << "j:"<<j<<endl;
+                //cout << "j:"<<j<<endl;
                 MB(i,j) = static_cast<double>(asd.at(combo[i]-1)->classAverages[db.getClassNames()[1]]);
                 SB_X(i,j) = static_cast<double>(classBObjects->objects.at(j).getFeatures()[combo[i]-1]);
             }
         }
         bnu::matrix<double> SA_final(dimension, dimension);
         bnu::matrix<double> SB_final(dimension, dimension);
-        cout<<"MA-SA_X:"<<endl;
-        for (uint i = 0; i < dimension; i++) {
-            for (uint j = 0; j < classAObjects->amount; j++) {
-                cout << (MA(i,j) - SA_X(i,j)) << "  ";
-            }
-            cout << endl;
-        }
+//        cout<<"MA-SA_X:"<<endl;
+//        for (uint i = 0; i < dimension; i++) {
+//            for (uint j = 0; j < classAObjects->amount; j++) {
+//                cout << (MA(i,j) - SA_X(i,j)) << "  ";
+//            }
+//            cout << endl;
+//        }
         SA_final = prod(MA - SA_X, trans(MA - SA_X))/classAObjects->amount;
 //        cout<<"SA:"<<endl;
 //        for (uint i = 0; i < dimension; i++) {
@@ -187,7 +187,7 @@ fisherPair* computeFisher(uint dimension, Database db, vector<vector<uint>> comb
 //        cout<<"TOP:"<<top<<endl;
 //        cout<<"BOTTOM:"<<bottom<<endl;
         double fisher = top/bottom;
-        cout<<"FISZER:"<<fisher<<endl;;
+//        cout<<"FISZER:"<<fisher<<endl;;
         if (fisher > FP->FLD) {
 //            cout<<"NOWY MISTRZ:"<<endl;
             FP->FLD = fisher;
@@ -209,9 +209,9 @@ fisherPair* SFS(uint dimension, Database db) {
 //        cout << i << " ";
 //    }
 //    cout << endl;
-    for (uint i = 1; i < dimension; i++) {
+    for (uint i = 2; i <= dimension; i++) {
         vector<vector<uint>> combo;
-        for (uint j = 1; j < db.getNoFeatures(); j++) {
+        for (uint j = 1; j <= db.getNoFeatures(); j++) {
             vector<uint> tmp = FP->max_ind;
             if(!(std::find(tmp.begin(), tmp.end(), j) != tmp.end())) {
                 tmp.push_back(j);
