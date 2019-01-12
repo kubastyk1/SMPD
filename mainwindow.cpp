@@ -162,7 +162,7 @@ void MainWindow::on_CpushButtonTrain_clicked()
 {
     std::vector<Object> allObjects = database.getObjects();
     uint crossValidationValue = ui -> CplainTextEditCrossValidation -> toPlainText().toUInt();
-
+    crossValidationSet.clear();
     if (crossValidationValue == 0) {
         trainingSet.clear();
         testSet.clear();
