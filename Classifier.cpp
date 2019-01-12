@@ -102,7 +102,7 @@ double Classifier::classifyNM(const std::vector<Object> &trainSet, const std::ve
 
             double result = sqrt(sum);
 
-            if (lowestValue == 0) {
+            if (lowestValue == 0.0) {
                 lowestValue = result;
                 lowestValueClass = className;
             } else if (result < lowestValue) {
@@ -200,7 +200,7 @@ double Classifier::classifyKNM(const std::vector<Object> &trainSet, const std::v
 bnu::matrix<double> Classifier::convertToMatrix(Object object) {
     bnu::matrix<double> matrix(object.getFeaturesNumber(), 1);
     for (unsigned int i = 0; i < object.getFeaturesNumber(); i++) {
-        matrix(i,0) = object.getFeatures()[i];
+        matrix(i,0) = static_cast<double>(object.getFeatures()[i]);
     }
     return matrix;
 }

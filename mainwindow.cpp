@@ -55,7 +55,8 @@ void MainWindow::FSupdateButtonState(void)
 
 void MainWindow::CupdateButtonState(void){
     std::vector<std::string> classifierMethods = {"NN", "NM", "k-NN", "k-NM" };
-
+    ui->CcomboBoxClassifiers->clear();
+    ui -> CcomboBoxK->clear();
     for(uint i = 0; i < classifierMethods.size(); i++){
         ui -> CcomboBoxClassifiers -> addItem(QString::fromStdString(classifierMethods[i]));
     }
