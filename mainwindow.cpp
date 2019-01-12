@@ -9,7 +9,7 @@
 #include <QImage>
 #include <QDebug>
 
-
+std::vector<uint> featureSet;
 std::vector<Object> trainingSet, testSet;
 std::vector<std::vector<Object>> crossValidationSet;
 
@@ -92,17 +92,18 @@ void MainWindow::on_FSpushButtonOpenFile_clicked()
 
 void MainWindow::on_FSpushButtonCompute_clicked()
 {
+    fisherPair* FP;
     uint dimension = static_cast<uint>(ui->FScomboBox->currentText().toInt());
     if( ui->FSradioButtonFisher ->isChecked())
     {
         if (dimension == 1 && database.getNoClass() == 2)
         {
-            fisherPair* FP = singleFisher(database);
+            FP = singleFisher(database);
             ui->FStextBrowserDatabaseInfo->append("[S]max_ind: "  +  QString::number(FP->max_ind[0]) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
         }
         else if (dimension > 1 && database.getNoClass() == 2)
         {
-           fisherPair* FP = bruteForce(dimension,database);
+           FP = bruteForce(dimension,database);
            string inds = "(";
            for (uint ind : FP->max_ind) {
                inds += to_string(ind) + " ";
@@ -113,7 +114,7 @@ void MainWindow::on_FSpushButtonCompute_clicked()
         }
     }
     else if( ui -> FSradioButtonSFS -> isChecked()){
-        fisherPair* FP = SFS(dimension,database);
+        FP = SFS(dimension,database);
         string inds = "(";
         for (uint ind : FP->max_ind) {
             inds += to_string(ind) + " ";
@@ -122,6 +123,7 @@ void MainWindow::on_FSpushButtonCompute_clicked()
         cout<<inds;
         ui->FStextBrowserDatabaseInfo->append("[SFS]max_ind: "  +  QString::fromStdString(inds) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
     }
+    featureSet = FP->max_ind;
 }
 
 
@@ -162,6 +164,17 @@ void MainWindow::on_CpushButtonSaveFile_clicked()
 void MainWindow::on_CpushButtonTrain_clicked()
 {
     std::vector<Object> allObjects = database.getObjects();
+    for (Object o:allObjects){
+        vector<float> tmp;
+       for (uint featureS:featureSet){
+           for(int i = 0; i < o.getFeaturesNumber(); i++){
+              if (i == featureS) {
+                tmp.push_back(o.getFeatures()[i]);
+               }
+           }
+       }
+        o.replaceFeatures(tmp);
+    }
     uint crossValidationValue = ui -> CplainTextEditCrossValidation -> toPlainText().toUInt();
     crossValidationSet.clear();
     if (crossValidationValue == 0) {

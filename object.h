@@ -13,11 +13,11 @@ private:
 
 
 public:
-
+    Object(std::string className) { this->className = className; }
     Object(const std::string &className, const std::vector<float> &features) :classID(-1), className(className), features(features)
     {
     }
-
+    void replaceFeatures(std::vector<float> replacer){ features=replacer;}
     std::string getClassName() const;
     size_t getFeaturesNumber() const;
     const std::vector<float> &getFeatures() const;
