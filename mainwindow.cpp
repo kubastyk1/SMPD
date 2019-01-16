@@ -87,6 +87,7 @@ void MainWindow::on_FSpushButtonOpenFile_clicked()
         QMessageBox::information(this, fileName, "File loaded !!!");
 
     FSupdateButtonState();
+    CupdateButtonState();
     updateDatabaseInfo();
 }
 
@@ -120,7 +121,7 @@ void MainWindow::on_FSpushButtonCompute_clicked()
             inds += to_string(ind) + " ";
         }
         inds = inds.substr(0, inds.size()-1) + ")";
-        cout<<inds;
+        cout << inds <<endl;
         ui->FStextBrowserDatabaseInfo->append("[SFS]max_ind: "  +  QString::fromStdString(inds) + " fisher: " + QString::number(static_cast<double>(FP->FLD)));
     }
     featureSet = FP->max_ind;
@@ -164,17 +165,29 @@ void MainWindow::on_CpushButtonSaveFile_clicked()
 void MainWindow::on_CpushButtonTrain_clicked()
 {
     std::vector<Object> allObjects = database.getObjects();
-    for (Object o:allObjects){
-        vector<float> tmp;
-       for (uint featureS:featureSet){
-           for(int i = 0; i < o.getFeaturesNumber(); i++){
-              if (i == featureS) {
-                tmp.push_back(o.getFeatures()[i]);
+    std::vector<Object> objectsWithSelectedFeatures;
+
+    if (featureSet.size() != 0) {
+        for (Object o : allObjects){
+           vector<float> tmp;
+           for (uint featureS : featureSet){
+               for(uint i = 0; i < o.getFeaturesNumber(); i++){
+                  if (i == featureS-1) {
+                    tmp.push_back(o.getFeatures()[i]);
+                   }
                }
            }
-       }
-        o.replaceFeatures(tmp);
+            o.replaceFeatures(tmp);
+            objectsWithSelectedFeatures.push_back(o);
+        }
+    } else {
+        for (Object o : allObjects){
+            objectsWithSelectedFeatures.push_back(o);
+        }
     }
+
+    cout << "Number of features: " << objectsWithSelectedFeatures[0].getFeaturesNumber() << endl;
+
     uint crossValidationValue = ui -> CplainTextEditCrossValidation -> toPlainText().toUInt();
     crossValidationSet.clear();
     if (crossValidationValue == 0) {
@@ -182,27 +195,27 @@ void MainWindow::on_CpushButtonTrain_clicked()
         testSet.clear();
 
         int percentNumber = ui->CplainTextEditTrainingPart->toPlainText().toInt();
-        int expectedSizeOfTrainingSet = static_cast<int>(allObjects.size() * (percentNumber / 100.0));
+        int expectedSizeOfTrainingSet = static_cast<int>(objectsWithSelectedFeatures.size() * (percentNumber / 100.0));
 
         for (int i = 0; i < expectedSizeOfTrainingSet; i++) {
-            uint random = rand() % allObjects.size();
-            trainingSet.push_back(allObjects.at(random));
-            allObjects.erase(allObjects.begin() + random);
+            uint random = rand() % objectsWithSelectedFeatures.size();
+            trainingSet.push_back(objectsWithSelectedFeatures.at(random));
+            objectsWithSelectedFeatures.erase(objectsWithSelectedFeatures.begin() + random);
         }
 
-        testSet = allObjects;
+        testSet = objectsWithSelectedFeatures;
 
         ui->CtextBrowser->append("Training set size: " +  QString::number(trainingSet.size()));
         ui->CtextBrowser->append("Test set size: " +  QString::number(testSet.size()));
     } else {
         std::vector<Object> tempSet;
-        uint expectedSizeOfSet = allObjects.size()/crossValidationValue;
+        uint expectedSizeOfSet = objectsWithSelectedFeatures.size()/crossValidationValue;
 
         for (uint i = 0; i < crossValidationValue; i++){
             for (uint j = 0; j < expectedSizeOfSet; j++) {
-                uint random = rand() % allObjects.size();
-                tempSet.push_back(allObjects.at(random));
-                allObjects.erase(allObjects.begin() + random);
+                uint random = rand() % objectsWithSelectedFeatures.size();
+                tempSet.push_back(objectsWithSelectedFeatures.at(random));
+                objectsWithSelectedFeatures.erase(objectsWithSelectedFeatures.begin() + random);
             }
             crossValidationSet.push_back(tempSet);
             tempSet.clear();
@@ -237,6 +250,7 @@ void MainWindow::on_CpushButtonExecute_clicked()
         double averagePercentage = 0;
 
         for (uint i = 0; i < crossValidationValue; i++) {
+            testSet.clear();
             testSet = crossValidationSet.at(i);
             trainingSet.clear();
 
