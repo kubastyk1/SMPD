@@ -256,7 +256,7 @@ void MainWindow::on_CpushButtonExecute_clicked()
 
             for (uint j = 0; j < crossValidationSet.size(); j++) {
                 if (i != j) {
-                    trainingSet.insert(trainingSet.end(), crossValidationSet.at(i).begin(), crossValidationSet.at(i).end());
+                    trainingSet.insert(trainingSet.end(), crossValidationSet.at(j).begin(), crossValidationSet.at(j).end());
                 }
             }
 
