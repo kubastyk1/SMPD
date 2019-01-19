@@ -104,7 +104,7 @@ fisherPair* singleFisher(Database db) {
             indTmp = i;
         }
       }
-    FP->max_ind.push_back(indTmp);
+    FP->max_ind.push_back(++indTmp);
     return FP;
 }
 
@@ -203,7 +203,7 @@ fisherPair* bruteForce(uint dimension, Database db) {
 
 fisherPair* SFS(uint dimension, Database db) {
     fisherPair* FP = singleFisher(db);
-    FP->max_ind[0]++;
+    FP->max_ind[0];
 //    cout << " FISZER SINGEL SFS";
 //    for ( uint i : FP->max_ind) {
 //        cout << i << " ";
